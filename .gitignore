@@ -1,0 +1,14 @@
+# Credenciais e estado do usuario nunca entram no repositorio.
+.env
+*.token
+tokens.json
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.DS_Store
+build/
+dist/
+*.egg-info/
