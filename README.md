@@ -1,5 +1,8 @@
 # ClipIt
 
+> **Beta.** O fluxo inteiro só se prova ao vivo, e ainda não foi. Se algo
+> não funcionar na sua live, abra uma issue com o que apareceu na tela.
+
 Cria o clipe na Twitch do que **acabou de acontecer** e guarda o link junto da
 sua marcação. Plugin do [Streamer Sidekick](https://github.com/ricardothezouro-debug/streamer_sidekick).
 
@@ -16,7 +19,13 @@ No fim da live, `[16:48:03] morri` virou
 ## Instalação
 
 Pelo marketplace do Streamer Sidekick (o card **+**). Depois, em
-**Configurações**, conecte sua conta da Twitch.
+**Configurações**:
+
+1. conecte sua conta da Twitch;
+2. escolha um **atalho global** — é ele que você vai usar no meio do jogo.
+
+Escolha uma combinação que o Marcador e o Contador não usem: o Sidekick não
+detecta conflito com atalhos de plugin.
 
 ## Como o login funciona
 

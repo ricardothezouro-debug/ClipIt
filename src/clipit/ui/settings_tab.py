@@ -6,8 +6,10 @@ from typing import Optional
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QDesktopServices, QGuiApplication
 from PySide6.QtCore import QUrl
+from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import (
     QCheckBox,
+    QKeySequenceEdit,
     QComboBox,
     QHBoxLayout,
     QLabel,
@@ -18,13 +20,33 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from clipit.core import atalho as atalho_mod
 from clipit.core.service import ClipItService
 from clipit.ui.components import NeonPanel
 from clipit.ui.workers import LoginWorker
 
 
+try:  # o Sidekick sabe converter a notacao dele para o Qt e de volta
+    from streamer_sidekick.core import hotkey_text as _hotkey_text  # type: ignore
+except Exception:
+    _hotkey_text = None
+
+
+def _para_texto(sequencia: QKeySequence) -> str:
+    if _hotkey_text is not None:
+        return str(_hotkey_text.from_key_sequence(sequencia))
+    return sequencia.toString(QKeySequence.SequenceFormat.PortableText)
+
+
+def _para_qt(texto: str) -> QKeySequence:
+    if _hotkey_text is not None:
+        return _hotkey_text.to_key_sequence(texto)
+    return QKeySequence(texto)
+
+
 class SettingsTab(QWidget):
     conta_mudou = Signal()
+    atalho_mudou = Signal(str)  # a sequencia nova ("" = sem atalho)
 
     def __init__(self, servico: ClipItService, parent: QWidget = None) -> None:
         super().__init__(parent)
@@ -35,6 +57,7 @@ class SettingsTab(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(16)
         layout.addWidget(self._painel_conta())
+        layout.addWidget(self._painel_atalho())
         layout.addWidget(self._painel_como())
         layout.addWidget(self._painel_avancado())
         layout.addStretch(1)
@@ -163,6 +186,85 @@ class SettingsTab(QWidget):
         self._atualizar_estado_conta()
         self.conta_mudou.emit()
 
+
+    # ------------------------------------------------------------ atalho
+    def _painel_atalho(self) -> QWidget:
+        painel = NeonPanel(accent="#FF4FD8")
+        caixa = QVBoxLayout(painel)
+        caixa.setContentsMargins(18, 16, 18, 16)
+        caixa.setSpacing(10)
+
+        titulo = QLabel("02  |  Atalho")
+        titulo.setObjectName("Kicker")
+        caixa.addWidget(titulo)
+
+        explicacao = QLabel(
+            "Um atalho global: funciona com o jogo em foco, sem alt-tab. "
+            "Clipa e escreve a marcação com o texto padrão."
+        )
+        explicacao.setObjectName("Muted")
+        explicacao.setWordWrap(True)
+        caixa.addWidget(explicacao)
+
+        linha = QHBoxLayout()
+        self.editor_atalho = QKeySequenceEdit()
+        self.editor_atalho.setMaximumWidth(220)
+        atual = str(self.servico.settings.get("atalho", ""))
+        if atual:
+            self.editor_atalho.setKeySequence(_para_qt(atual))
+        linha.addWidget(self.editor_atalho)
+        aplicar = QPushButton("Aplicar")
+        aplicar.setObjectName("PrimaryButton")
+        aplicar.clicked.connect(self._aplicar_atalho)
+        linha.addWidget(aplicar)
+        limpar = QPushButton("Remover")
+        limpar.clicked.connect(self._remover_atalho)
+        linha.addWidget(limpar)
+        linha.addStretch(1)
+        caixa.addLayout(linha)
+
+        self.estado_atalho = QLabel()
+        self.estado_atalho.setObjectName("Muted")
+        self.estado_atalho.setWordWrap(True)
+        caixa.addWidget(self.estado_atalho)
+
+        aviso = QLabel(
+            "Escolha uma combinação que o Marcador e o Contador não usem — o "
+            "Sidekick não detecta conflito com atalhos de plugin."
+        )
+        aviso.setObjectName("Muted")
+        aviso.setWordWrap(True)
+        caixa.addWidget(aviso)
+
+        if not atalho_mod.disponivel():
+            self.estado_atalho.setText(
+                "Atalhos indisponíveis fora do Streamer Sidekick."
+            )
+            self.editor_atalho.setEnabled(False)
+            aplicar.setEnabled(False)
+        return painel
+
+    def _aplicar_atalho(self) -> None:
+        texto = _para_texto(self.editor_atalho.keySequence()).strip()
+        if not texto:
+            self._remover_atalho()
+            return
+        problema = atalho_mod.validar(atalho_mod.normalizar(texto))
+        if problema:
+            self.estado_atalho.setText(problema)
+            return
+        self.servico.settings.set("atalho", atalho_mod.normalizar(texto))
+        self.atalho_mudou.emit(self.servico.settings.get("atalho", ""))
+
+    def _remover_atalho(self) -> None:
+        self.editor_atalho.clear()
+        self.servico.settings.set("atalho", "")
+        self.atalho_mudou.emit("")
+
+    def mostrar_estado_do_atalho(self, mensagem: str) -> None:
+        """A pagina, que e quem registra, conta como foi."""
+        self.estado_atalho.setText(mensagem)
+
     # -------------------------------------------------------- como clipar
     def _painel_como(self) -> QWidget:
         painel = NeonPanel(accent="#37F2FF")
@@ -170,7 +272,7 @@ class SettingsTab(QWidget):
         caixa.setContentsMargins(18, 16, 18, 16)
         caixa.setSpacing(10)
 
-        titulo = QLabel("02  |  Como clipar")
+        titulo = QLabel("03  |  Como clipar")
         titulo.setObjectName("Kicker")
         caixa.addWidget(titulo)
 
@@ -245,7 +347,7 @@ class SettingsTab(QWidget):
         caixa.setContentsMargins(18, 16, 18, 16)
         caixa.setSpacing(10)
 
-        titulo = QLabel("03  |  Avançado")
+        titulo = QLabel("04  |  Avançado")
         titulo.setObjectName("Kicker")
         caixa.addWidget(titulo)
 

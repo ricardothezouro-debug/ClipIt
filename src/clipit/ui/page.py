@@ -10,12 +10,14 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from clipit.core.atalho import Atalho
 from clipit.core.clips import RegistroDeClipes
 from clipit.core.paths import tokens_path
 from clipit.core.service import ClipItService
 from clipit.core.settings import Settings
 from clipit.core.twitch_auth import GuardaDeTokens
 from clipit.ui.clips_tab import ClipsTab
+from clipit.ui.gatilho import Gatilho
 from clipit.ui.settings_tab import SettingsTab
 
 
@@ -59,6 +61,28 @@ class ClipItPage(QWidget):
             lambda i: i == 0 and self.aba_clipes.checar_estado()
         )
 
+        # O atalho global. O backend chama o Gatilho fora da GUI; o Signal
+        # traz a chamada de volta para a thread certa antes de clipar.
+        self.atalho = Atalho()
+        self.gatilho = Gatilho(self)
+        self.gatilho.disparou.connect(self.aba_clipes.clipar_por_atalho)
+        self.aba_config.atalho_mudou.connect(self._registrar_atalho)
+        # Registrar e trabalho do backend, nao da montagem: fica para depois
+        # do primeiro desenho, como a regra de "nada bloqueante" pede.
+        QTimer.singleShot(0, lambda: self._registrar_atalho(
+            str(settings.get("atalho", ""))
+        ))
+
+    def _registrar_atalho(self, sequencia: str) -> None:
+        if not sequencia:
+            self.atalho.remover()
+            self.aba_config.mostrar_estado_do_atalho("Sem atalho.")
+            return
+        problema = self.atalho.registrar(sequencia, self.gatilho.callback)
+        self.aba_config.mostrar_estado_do_atalho(
+            problema if problema else f"Atalho ativo: {self.atalho.sequencia}"
+        )
+
     @staticmethod
     def _rolavel(conteudo: QWidget) -> QWidget:
         area = QScrollArea()
@@ -78,6 +102,7 @@ class ClipItPage(QWidget):
         Destruir uma QThread viva aborta o processo -- ja custou uma versao do
         Streamer Sidekick.
         """
+        self.atalho.remover()
         self.aba_clipes.encerrar()
         self.aba_config.encerrar()
 

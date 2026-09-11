@@ -90,6 +90,11 @@ class ClipsTab(QWidget):
         caixa.addWidget(self.estado)
         return painel
 
+    def clipar_por_atalho(self) -> None:
+        """Chega pela GUI (o Gatilho ja atravessou a thread). Usa o texto do
+        campo se houver; senao o padrao das configuracoes."""
+        self.clipar()
+
     def clipar(self) -> None:
         if self._clipe is not None and self._clipe.isRunning():
             return

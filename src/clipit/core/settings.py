@@ -25,6 +25,8 @@ PADRAO: dict[str, Any] = {
     # Escrever a marcacao (com o link) no arquivo do Marcador do Sidekick.
     "escrever_no_marcador": True,
     "texto_padrao": "clipe",
+    # Atalho global, na notacao do Sidekick ("Ctrl+Alt+C"). Vazio = sem atalho.
+    "atalho": "",
 }
 
 

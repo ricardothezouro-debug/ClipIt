@@ -29,7 +29,8 @@ def module_info() -> ModuleInfo:
         module_id="clipit",
         title="ClipIt",
         subtitle="Cria o clipe na Twitch por atalho e guarda o link junto da sua marcação.",
-        status="Pronto",
+        # Beta: o fluxo inteiro so se prova ao vivo, e ainda nao foi.
+        status="Beta",
         accent=ACCENT,
     )
 
@@ -48,8 +49,10 @@ def help_text() -> str:
         "Como usar:\n"
         "• Em Configurações, conecte sua conta da Twitch (um código e o "
         "navegador — nenhuma senha passa pelo plugin).\n"
-        "• Durante a live, use o atalho: o clipe é criado e o link vai junto "
-        "com a sua marcação no Marcador.\n"
+        "• Ainda em Configurações, escolha um atalho global — um que o "
+        "Marcador e o Contador não usem.\n"
+        "• Durante a live, aperte o atalho: o clipe é criado e o link vai "
+        "junto com a sua marcação no Marcador.\n"
         "• Depois da live, a aba Clipes vira a sua pauta de cortes.\n\n"
         "Bom saber:\n"
         "• Só funciona com a transmissão no ar.\n"
