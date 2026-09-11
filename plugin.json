@@ -1,0 +1,13 @@
+{
+  "id": "clipit",
+  "name": "ClipIt",
+  "version": "0.1.0",
+  "src_subdir": "src",
+  "module": "clipit.module",
+  "accent": "#9146FF",
+  "icon": "src/clipit/assets/brand/app_icon.png",
+  "min_sidekick_version": "0.8.0",
+  "category": "tool",
+  "repo": "ricardothezouro-debug/ClipIt",
+  "ref": "main"
+}

@@ -6,10 +6,17 @@ from typing import Any
 
 from clipit.core.paths import settings_path
 
+#: Aplicativo publico do ClipIt na Twitch.
+CLIENT_ID_PADRAO = "xhmhpeudeg3qlpsq9mhpso5xrewvv2"
+
 PADRAO: dict[str, Any] = {
-    # Vem do app que o usuario registra em dev.twitch.tv/console. E publico por
-    # natureza (aparece em qualquer requisicao), mas e de cada um.
-    "client_id": "",
+    # O Client ID do aplicativo registrado em dev.twitch.tv/console. E publico
+    # por natureza: viaja em toda requisicao e nao da acesso a nada sozinho --
+    # quem autoriza e o usuario, no navegador. O Client SECRET nao aparece aqui
+    # e nem existe neste fluxo; era justamente para evitar guardar segredo num
+    # repositorio publico que escolhemos o Device Code Grant.
+    # Fica sobrescritivel para quem quiser usar o proprio aplicativo.
+    "client_id": CLIENT_ID_PADRAO,
     # False = clipa o momento do BROADCAST (o que voce acabou de fazer).
     "com_delay": False,
     # Segundos entre clipes. Protege de apertar tres vezes e gerar tres clipes
@@ -56,4 +63,5 @@ class Settings:
 
     @property
     def client_id(self) -> str:
-        return str(self._dados.get("client_id", "")).strip()
+        """Cai no padrao quando o usuario apagou o campo sem querer."""
+        return str(self._dados.get("client_id", "")).strip() or CLIENT_ID_PADRAO
