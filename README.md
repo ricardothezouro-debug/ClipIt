@@ -1,8 +1,5 @@
 # ClipIt
 
-> **Beta.** O fluxo inteiro só se prova ao vivo, e ainda não foi. Se algo
-> não funcionar na sua live, abra uma issue com o que apareceu na tela.
-
 Cria o clipe na Twitch do que **acabou de acontecer** e guarda o link junto da
 sua marcação. Plugin do [Streamer Sidekick](https://github.com/ricardothezouro-debug/streamer_sidekick).
 

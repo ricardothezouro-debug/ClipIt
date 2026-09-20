@@ -29,8 +29,7 @@ def module_info() -> ModuleInfo:
         module_id="clipit",
         title="ClipIt",
         subtitle="Cria o clipe na Twitch por atalho e guarda o link junto da sua marcação.",
-        # Beta: o fluxo inteiro so se prova ao vivo, e ainda nao foi.
-        status="Beta",
+        status="Pronto",
         accent=ACCENT,
     )
 
